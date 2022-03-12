@@ -18,27 +18,6 @@ def deco(func):
 
 
 @deco
-def get_lines(cmd):
-    """
-    :param cmd: str 実行するコマンド.
-    :rtype: generator
-    :return: 標準出力 (行毎).
-    :usage:
-        for line in get_lines(cmd=save_stream):
-            print(line)
-    """
-    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-    while True:
-        line = proc.stdout.readline()
-        if line:
-            yield line
-
-        if not line and proc.poll() is not None:
-            break
-
-
-@deco
 def cmd_save_stream(**kwargs) -> str:
     return 'ffmpeg -y -i {} -map {} {} -y'.format(
         kwargs['in_file'],
@@ -46,13 +25,6 @@ def cmd_save_stream(**kwargs) -> str:
         kwargs['out_file']
     )
 
-@deco
-def cmd_save_multi_stream(**kwargs) -> str:
-    return 'ffmpeg -i {} -map {} -map output.mkv'.format(
-        kwargs['in_file'],
-        kwargs['fmt'],
-        kwargs['out_file']
-    )
 
 @deco
 def cmd_silence_detect(**kwargs) -> str:
@@ -65,15 +37,6 @@ def cmd_silence_detect(**kwargs) -> str:
         'awk \'{print $5 " " $8}\'',
         'tee {}'.format(
             kwargs['out_file']))
-
-
-@deco
-def cmd_concat_audio(**kwargs) -> str:
-    return 'ffmpeg -y -i "concat:{}|{}" -acodec copy {}'.format(
-        kwargs['in_file1'],
-        kwargs['in_file2'],
-        kwargs['out_file']
-    )
 
 
 @deco
@@ -107,11 +70,14 @@ def cmd_merge(**kwargs) -> str:
     """
     https://stackoverflow.com/questions/44712868/ffmpeg-set-volume-in-amix
     """
-    return 'ffmpeg -i {} -i {} -map 0:v -map 0:a -map 1:0 output.mp4'.format(
+    return 'ffmpeg -y -i {} -i {} {} copy {} aac -map 0:v:0 -map 1:a:0 {}'.format(
             kwargs['in_file1'],
             kwargs['in_file2'],
-            kwargs['out_file']
-        )
+            kwargs['out_file'],
+            kwargs['fmt1'],
+            kwargs['fmt2'],
+    )
+
 
 @deco
 def cmd_merge_movie(**kwargs) -> str:

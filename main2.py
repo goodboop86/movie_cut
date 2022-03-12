@@ -21,7 +21,7 @@ class Config:
     video = {'in_file': input_file, 'fmt': "0:v", 'out_file': video_file}
     audio = {'in_file': input_file, 'fmt': "0:a:0", 'out_file': audio_file}
     voice = {'in_file': input_file, 'fmt': "0:a:1", 'out_file': voice_file}
-    silence_detect = {'in_file': voice_file, 'db': -20, 'duration': 0.3, 'out_file': silence_file}
+    silence_detect = {'in_file': voice_file, 'db': -20, 'duration': 0.5, 'out_file': silence_file}
     amix_audio = {'in_file1': audio_file, 'in_file2': voice_file, 'out_file': amix_file}
     amix_video = {'in_file1': input_file, 'in_file2': audio_file, 'out_file': merge_file}
     merge_movie = {'in_file1': video_file, 'in_file2': amix_file, 'fmt1': '-c:v', 'fmt2': '-c:a',
@@ -45,7 +45,7 @@ subprocess.call(utils.cmd_amix(**c.amix_audio), shell=True)
 # subprocess.call(utils.cmd_merge(**c.amix_video), shell=True)
 
 # 音と映像を結合
-subprocess.call(utils.cmd_merge_movie(**c.merge_movie), shell=True)
+subprocess.call(utils.cmd_merge(**c.merge_movie), shell=True)
 
 # 無音区間削除
 utils.video_edit(**c.video_edit)
