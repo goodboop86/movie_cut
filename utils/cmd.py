@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 import subprocess
 
 from moviepy.editor import VideoFileClip, concatenate_videoclips
+from moviepy.video.fx.fadein import fadein
+from moviepy.video.fx.fadeout import fadeout
 
 
 def deco(func):
@@ -111,6 +113,12 @@ def video_edit(**kwargs) -> None:
 
         end, duration = line.strip().split()
 
+        # padding, end地点から1秒残したい
+        end = float(end) - float(kwargs["padding"])
+
+        # end地点からずれたpadding + start地点にもpaddingを残すため2回分減る
+        duration = float(duration) - float(2 * kwargs["padding"])
+
         to = float(end) - float(duration)
 
         start = float(last)
@@ -129,6 +137,8 @@ def video_edit(**kwargs) -> None:
 
         print("Clip {} (Start: {}, End: {})".format(count, start, to))
         clip = video.subclip(start, to)
+        clip = fadein(clip, 0.5)
+        clip = fadeout(clip, 0.5)
         clips.append(clip)
         last = end
         count += 1
