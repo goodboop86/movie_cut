@@ -30,7 +30,7 @@ class Config:
              'out_file': voice_file}
 
     silence_detect = {'in_file': voice_file,
-                      'db': -10, 'duration': 7,
+                      'db': -10, 'duration': 8,
                       'out_file': silence_file}
 
     amix_audio = {
@@ -51,7 +51,7 @@ class Config:
     video_edit = {'file_in': merge_file,
                   'file_out': output_file,
                   'silence_file': silence_file,
-                  'ease': 1, 'padding': 2}
+                  'ease': 1, 'padding': 2.5}
 
     short_detect = {'silence_file': silence_file,
                     'before_file': before_file,
