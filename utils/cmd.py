@@ -1,9 +1,13 @@
 from __future__ import unicode_literals
 
+import glob
 import subprocess
+import time
+from typing import List
 import os
 
 os.environ["IMAGEIO_FFMPEG_EXE"] = '/opt/homebrew/bin/ffmpeg'
+
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from moviepy.video.fx.fadein import fadein
 from moviepy.video.fx.fadeout import fadeout
@@ -11,11 +15,15 @@ from moviepy.video.fx.fadeout import fadeout
 
 def deco(func):
     def wrapper(*args, **kwargs):
-        print("## in {}:".format(func.__name__))
-        print("-> args: {}, kwargs: {}".format(args, kwargs))
+        print("#### in {}:".format(func.__name__))
+        print("# -> args: {}, kwargs: {}".format(args, kwargs))
+
+        start_time = time.perf_counter()
         res = func(*args, **kwargs)
         if isinstance(res, (str, int, dict)):
-            print("-> return: {}".format(res))
+            print("# -> return: {}".format(res))
+        end_time = time.perf_counter()
+        print("#### time: {}".format(end_time - start_time))
         return res
 
     return wrapper
@@ -23,7 +31,8 @@ def deco(func):
 
 @deco
 def cmd_save_stream(**kwargs) -> str:
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -map {} {} -y'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -map {} -c:v h264_videotoolbox' \
+           ' {} -y'.format(
         kwargs['in_file'],
         kwargs['fmt'],
         kwargs['out_file']
@@ -33,7 +42,8 @@ def cmd_save_stream(**kwargs) -> str:
 @deco
 def cmd_silence_detect(**kwargs) -> str:
     return '{} | {} | {} | {}'.format(
-        '/opt/homebrew/bin/ffmpeg -y -hide_banner -vn -i {} -af "silencedetect=n={}dB:d={}" -f null - 2>&1'.format(
+        '/opt/homebrew/bin/ffmpeg -y -hide_banner -vn -i {} -af "silencedetect=n={}dB:d={}" -c:v h264_videotoolbox'
+        ' -f null - 2>&1'.format(
             kwargs['in_file'],
             kwargs['db'],
             kwargs['duration']),
@@ -48,7 +58,8 @@ def cmd_amix(**kwargs) -> str:
     """
     https://nico-lab.net/amix_with_ffmpeg/
     """
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} -filter_complex amix=inputs=2:duration=first:dropout_transition=2 {}'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} -filter_complex amix=inputs=2:duration=first:dropout_transition=2' \
+           ' -c:v h264_videotoolbox {}'.format(
         kwargs['in_file1'],
         kwargs['in_file2'],
         kwargs['out_file']
@@ -74,7 +85,7 @@ def cmd_merge(**kwargs) -> str:
     """
     https://stackoverflow.com/questions/44712868/ffmpeg-set-volume-in-amix
     """
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} {} copy {} aac -map 0:v:0 -map 1:a:0 {}'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} {} copy {} aac -map 0:v:0 -map 1:a:0 -c:v h264_videotoolbox {}'.format(
         kwargs['in_file1'],
         kwargs['in_file2'],
         kwargs['out_file'],
@@ -96,7 +107,7 @@ def cmd_merge_movie(**kwargs) -> str:
 
 @deco
 def cmd_to_playable(**kwargs) -> str:
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -pix_fmt yuv420p {}'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -c:v h264_videotoolbox -pix_fmt yuv420p {}'.format(
         kwargs['in_file'],
         kwargs['out_file'],
     )
@@ -167,3 +178,26 @@ def video_edit(**kwargs) -> None:
 
     in_handle.close()
     video.close()
+
+
+@deco
+def movie_concat(conf):
+    @deco
+    def concat(_in_name, _out_name):
+        subprocess.call(
+            r'/opt/homebrew/bin/ffmpeg -y -i {} -vf "fade=t=in:st=0:d=0.5" -c:v h264_videotoolbox -c:a aac_at {}'.format(_in_name, _out_name),
+            shell=True)
+        return 0
+
+    # Import everything needed to edit video clips
+    for in_name, out_name in conf.order:
+        _ = concat(in_name, out_name)
+
+
+@deco
+def get_mp4title(path):
+    titles: List[str] = []
+    for file in glob.glob(path):
+        title = os.path.split(file)[1].split('.')[0]
+        titles.append(title)
+    return titles
