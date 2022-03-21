@@ -31,8 +31,7 @@ def deco(func):
 
 @deco
 def cmd_save_stream(**kwargs) -> str:
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -map {} -c:v h264_videotoolbox' \
-           ' {} -y'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -map {} {} -y'.format(
         kwargs['in_file'],
         kwargs['fmt'],
         kwargs['out_file']
@@ -42,8 +41,7 @@ def cmd_save_stream(**kwargs) -> str:
 @deco
 def cmd_silence_detect(**kwargs) -> str:
     return '{} | {} | {} | {}'.format(
-        '/opt/homebrew/bin/ffmpeg -y -hide_banner -vn -i {} -af "silencedetect=n={}dB:d={}" -c:v h264_videotoolbox'
-        ' -f null - 2>&1'.format(
+        '/opt/homebrew/bin/ffmpeg -y -hide_banner -vn -i {} -af "silencedetect=n={}dB:d={}" -f null - 2>&1'.format(
             kwargs['in_file'],
             kwargs['db'],
             kwargs['duration']),
@@ -58,8 +56,7 @@ def cmd_amix(**kwargs) -> str:
     """
     https://nico-lab.net/amix_with_ffmpeg/
     """
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} -filter_complex amix=inputs=2:duration=first:dropout_transition=2' \
-           ' -c:v h264_videotoolbox {}'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} -filter_complex amix=inputs=2:duration=first:dropout_transition=2 {}'.format(
         kwargs['in_file1'],
         kwargs['in_file2'],
         kwargs['out_file']
@@ -85,7 +82,7 @@ def cmd_merge(**kwargs) -> str:
     """
     https://stackoverflow.com/questions/44712868/ffmpeg-set-volume-in-amix
     """
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} {} copy {} aac -map 0:v:0 -map 1:a:0 -c:v h264_videotoolbox {}'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} {} copy {} aac -map 0:v:0 -map 1:a:0 {}'.format(
         kwargs['in_file1'],
         kwargs['in_file2'],
         kwargs['out_file'],
@@ -107,7 +104,7 @@ def cmd_merge_movie(**kwargs) -> str:
 
 @deco
 def cmd_to_playable(**kwargs) -> str:
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -c:v h264_videotoolbox -pix_fmt yuv420p {}'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -pix_fmt yuv420p {}'.format(
         kwargs['in_file'],
         kwargs['out_file'],
     )
@@ -185,7 +182,7 @@ def movie_concat(conf):
     @deco
     def concat(_in_name, _out_name):
         subprocess.call(
-            r'/opt/homebrew/bin/ffmpeg -y -i {} -vf "fade=t=in:st=0:d=0.5" -c:v h264_videotoolbox -c:a aac_at {}'.format(_in_name, _out_name),
+            r'/opt/homebrew/bin/ffmpeg -y -i {} -vf "fade=t=in:st=0:d=0.5" -c:a copy {}'.format(_in_name, _out_name),
             shell=True)
         return 0
 
