@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 
+import glob
 import subprocess
 import os
+from typing import List
 
 os.environ["IMAGEIO_FFMPEG_EXE"] = '/opt/homebrew/bin/ffmpeg'
 from moviepy.editor import VideoFileClip, concatenate_videoclips
@@ -167,3 +169,11 @@ def video_edit(**kwargs) -> None:
 
     in_handle.close()
     video.close()
+
+
+def get_mp4title(path):
+    titles: List[str] = []
+    for file in glob.glob(path):
+        title = os.path.split(file)[1].split('.')[0]
+        titles.append(title)
+    return titles
