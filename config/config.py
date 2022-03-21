@@ -4,7 +4,7 @@ class Config:
     - https://qiita.com/cabbage_lettuce/items/21348358ba46f4110d75
     """
 
-    title = 'kabi_win_2022-03-19_00-14-21'
+    title = 'win_sana_2022-03-15_23-06-34'
     input_file = f'data/{title}/{title}.mp4'
     video_file = f'data/{title}/video.mp4'
     audio_file = f'data/{title}/audio.wav'
