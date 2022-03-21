@@ -1,60 +1,83 @@
+import os
 class Config:
     """
     - x:y:z -> x:int file, y:{'a','v'} video or audio, z:int channel
     - https://qiita.com/cabbage_lettuce/items/21348358ba46f4110d75
     """
+    def __init__(self):
 
-    title = 'win_sana_2022-03-15_23-06-34'
-    input_file = f'data/{title}/{title}.mp4'
-    video_file = f'data/{title}/video.mp4'
-    audio_file = f'data/{title}/audio.wav'
-    voice_file = f'data/{title}/voice.wav'
-    silence_file = f'data/{title}/silence.txt'
-    amix_file = f'data/{title}/amix.mp3'
-    merge_file = f'data/{title}/merge.mp4'
-    output_file = f'data/{title}/output.mp4'
-    silence_file = f'data/{title}/silence.txt'
-    before_file = f'data/{title}/before.png'
-    after_file = f'data/{title}/after.png'
+        self.title = r'2022-03-15_23-06-34_sana_win'
+        self.base_dir = r"/Users/kazuya/Google\ Drive/My\ Drive/movie/data"
+        self.input_file = f'{self.base_dir}/{self.title}/{self.title}.mp4'
+        self.video_file = f'{self.base_dir}/{self.title}/video.mp4'
+        self.audio_file = f'{self.base_dir}/{self.title}/audio.wav'
+        self.voice_file = f'{self.base_dir}/{self.title}/voice.wav'
+        self.silence_file = f'{self.base_dir}/{self.title}/silence.txt'
+        self.before_file = f'{self.base_dir}/{self.title}/before.png'
+        self.after_file = f'{self.base_dir}/{self.title}/after.png'
+        self.amix_file = f'{self.base_dir}/{self.title}/amix.mp3'
+        self.merge_file = f'{self.base_dir}/{self.title}/merge.mp4'
+        self.edit_file = f'{self.base_dir}/{self.title}/edit.mp4'
+        self.output_file = f'{self.base_dir}/{self.title}/output.mp4'
+        self.intermediate_output = [self.video_file, self.audio_file, self.voice_file, self.amix_file, self.edit_file]
 
-    video = {'in_file': input_file,
-             'fmt': "0:v",
-             'out_file': video_file}
+        self.video = {
+            'in_file': self.input_file,
+            'fmt': "0:v",
+            'out_file': self.video_file}
+    
+        self.audio = {
+            'in_file': self.input_file,
+            'fmt': "0:a:0",
+            'out_file': self.audio_file}
+    
+        self.voice = {
+            'in_file': self.input_file,
+            'fmt': "0:a:1",
+            'out_file': self.voice_file}
+    
+        self.silence_detect = {
+            'in_file': self.voice_file,
+            'db': -10,
+            'duration': 8,
+            'out_file': self.silence_file}
+    
+        self.amix_audio = {
+            'in_file1': self.audio_file,
+            'in_file2': self.voice_file,
+            'out_file': self.amix_file}
+    
+        self.amix_video = {
+            'in_file1': self.input_file,
+            'in_file2': self.audio_file,
+            'out_file': self.merge_file}
+    
+        self.merge_movie = {
+            'in_file1': self.video_file,
+            'in_file2': self.amix_file,
+            'fmt1': '-c:v',
+            'fmt2': '-c:a',
+            'out_file': self.merge_file}
+    
+        self.video_edit = {
+            'file_in': self.merge_file,
+            'file_out': self.edit_file,
+            'silence_file': self.silence_file,
+            'ease': 1,
+            'padding': 2.5}
+    
+        self.short_detect = {
+            'silence_file': self.silence_file,
+            'before_file': self.before_file,
+            'after_file': self.after_file,
+            'out_file': self.silence_file,
+            'noise_second': 5}
+    
+        self.to_playable = {
+            'in_file': self.edit_file,
+            'out_file': self.output_file}
 
-    audio = {'in_file': input_file,
-             'fmt': "0:a:0",
-             'out_file': audio_file}
+    def remove_intermediate(self):
+        for path in self.intermediate_output:
+            os.remove(path.replace('\\', ''))
 
-    voice = {'in_file': input_file,
-             'fmt': "0:a:1",
-             'out_file': voice_file}
-
-    silence_detect = {'in_file': voice_file,
-                      'db': -10, 'duration': 8,
-                      'out_file': silence_file}
-
-    amix_audio = {
-        'in_file1': audio_file,
-        'in_file2': voice_file,
-        'out_file': amix_file}
-
-    amix_video = {'in_file1': input_file,
-                  'in_file2': audio_file,
-                  'out_file': merge_file}
-
-    merge_movie = {'in_file1': video_file,
-                   'in_file2': amix_file,
-                   'fmt1': '-c:v',
-                   'fmt2': '-c:a',
-                   'out_file': merge_file}
-
-    video_edit = {'file_in': merge_file,
-                  'file_out': output_file,
-                  'silence_file': silence_file,
-                  'ease': 1, 'padding': 2.5}
-
-    short_detect = {'silence_file': silence_file,
-                    'before_file': before_file,
-                    'after_file': after_file,
-                    'out_file': silence_file,
-                    'noise_second': 5}

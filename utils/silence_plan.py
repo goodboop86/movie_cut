@@ -33,7 +33,8 @@ def remove_short_detect(current_list, th=3):
 
 
 def main(**kwargs):
-    with open(kwargs['silence_file']) as f:
+    # space区切り付のファイルパスは、shellコマンドでは'\'が必要だがpythonでは不要
+    with open(kwargs['silence_file'].replace('\\', '')) as f:
         silence = f.readlines()
     silence_list = []
 
@@ -66,7 +67,7 @@ def main(**kwargs):
     plt.clf()
     plt.plot(x, y)
     plt.fill_between(x, y, alpha=0.5)
-    plt.savefig(kwargs['before_file'])
+    plt.savefig(kwargs['before_file'].replace('\\', ''))
 
     new_silence_list = remove_short_detect(silence_list, th=kwargs['noise_second'])
 
@@ -87,7 +88,7 @@ def main(**kwargs):
     plt.clf()
     plt.plot(new_x, new_y)
     plt.fill_between(new_x, new_y, alpha=0.5)
-    plt.savefig(kwargs['after_file'])
+    plt.savefig(kwargs['after_file'].replace('\\', ''))
 
-    with open(kwargs['out_file'], "w", newline='\n') as f:
+    with open(kwargs['out_file'].replace('\\', ''), "w", newline='\n') as f:
         f.writelines(["{}\n".format(" ".join(map(str, line[1:]))) for line in new_silence_list])

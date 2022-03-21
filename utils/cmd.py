@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 
 import subprocess
+import os
 
+os.environ["IMAGEIO_FFMPEG_EXE"] = '/opt/homebrew/bin/ffmpeg'
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from moviepy.video.fx.fadein import fadein
 from moviepy.video.fx.fadeout import fadeout
@@ -21,7 +23,7 @@ def deco(func):
 
 @deco
 def cmd_save_stream(**kwargs) -> str:
-    return 'ffmpeg -y -i {} -map {} {} -y'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -map {} {} -y'.format(
         kwargs['in_file'],
         kwargs['fmt'],
         kwargs['out_file']
@@ -31,7 +33,7 @@ def cmd_save_stream(**kwargs) -> str:
 @deco
 def cmd_silence_detect(**kwargs) -> str:
     return '{} | {} | {} | {}'.format(
-        'ffmpeg -y -hide_banner -vn -i {} -af "silencedetect=n={}dB:d={}" -f null - 2>&1'.format(
+        '/opt/homebrew/bin/ffmpeg -y -hide_banner -vn -i {} -af "silencedetect=n={}dB:d={}" -f null - 2>&1'.format(
             kwargs['in_file'],
             kwargs['db'],
             kwargs['duration']),
@@ -46,7 +48,7 @@ def cmd_amix(**kwargs) -> str:
     """
     https://nico-lab.net/amix_with_ffmpeg/
     """
-    return 'ffmpeg -y -i {} -i {} -filter_complex amix=inputs=2:duration=first:dropout_transition=2 {}'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} -filter_complex amix=inputs=2:duration=first:dropout_transition=2 {}'.format(
         kwargs['in_file1'],
         kwargs['in_file2'],
         kwargs['out_file']
@@ -58,13 +60,13 @@ def cmd_amix_video(**kwargs) -> str:
     """
     https://stackoverflow.com/questions/44712868/ffmpeg-set-volume-in-amix
     """
-    return 'ffmpeg -y -i amovie=audio_to_add.mp4:loop=0,asetpts=N/SR/TB,volume=1.0[a] -i {} -filter_complex "[0:a][1:a]amix=inputs=2:duration=longest[out]" ' \
+    return '/opt/homebrew/bin/ffmpeg -y -i amovie=audio_to_add.mp4:loop=0,asetpts=N/SR/TB,volume=1.0[a] -i {} -filter_complex "[0:a][1:a]amix=inputs=2:duration=longest[out]" ' \
            '-map 0:v -map [out] {}'. \
         format(
-            kwargs['in_file1'],
-            kwargs['in_file2'],
-            kwargs['out_file']
-        )
+        kwargs['in_file1'],
+        kwargs['in_file2'],
+        kwargs['out_file']
+    )
 
 
 @deco
@@ -72,23 +74,31 @@ def cmd_merge(**kwargs) -> str:
     """
     https://stackoverflow.com/questions/44712868/ffmpeg-set-volume-in-amix
     """
-    return 'ffmpeg -y -i {} -i {} {} copy {} aac -map 0:v:0 -map 1:a:0 {}'.format(
-            kwargs['in_file1'],
-            kwargs['in_file2'],
-            kwargs['out_file'],
-            kwargs['fmt1'],
-            kwargs['fmt2'],
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} {} copy {} aac -map 0:v:0 -map 1:a:0 {}'.format(
+        kwargs['in_file1'],
+        kwargs['in_file2'],
+        kwargs['out_file'],
+        kwargs['fmt1'],
+        kwargs['fmt2'],
     )
 
 
 @deco
 def cmd_merge_movie(**kwargs) -> str:
-    return 'ffmpeg -y -i {} -i {} {} copy {} copy {}'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} {} copy {} copy {}'.format(
         kwargs['in_file1'],
         kwargs['in_file2'],
         kwargs['fmt1'],
         kwargs['fmt2'],
         kwargs['out_file']
+    )
+
+
+@deco
+def cmd_to_playable(**kwargs) -> str:
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -pix_fmt yuv420p {}'.format(
+        kwargs['in_file'],
+        kwargs['out_file'],
     )
 
 
@@ -101,8 +111,8 @@ def video_edit(**kwargs) -> None:
     # start of next clip
     last = 0
 
-    in_handle = open(kwargs['silence_file'], "r", errors='replace')
-    video = VideoFileClip(kwargs['file_in'])
+    in_handle = open(kwargs['silence_file'].replace('\\', ''), "r", errors='replace')
+    video = VideoFileClip(kwargs['file_in'].replace('\\', ''))
     full_duration = video.duration
     clips = []
     while True:
@@ -149,7 +159,7 @@ def video_edit(**kwargs) -> None:
 
     processed_video = concatenate_videoclips(clips)
     processed_video.write_videofile(
-        kwargs['file_out'],
+        kwargs['file_out'].replace('\\', ''),
         fps=60,
         preset='ultrafast',
         codec='libx264'
