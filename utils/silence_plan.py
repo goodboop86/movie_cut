@@ -38,7 +38,6 @@ def main(**kwargs):
     silence_list = []
 
     for line in silence:
-<<<<<<< HEAD
         try:
             end, duration = line.split(' ')
             try:
@@ -48,11 +47,6 @@ def main(**kwargs):
                 pass
         except BaseException:
             pass
-=======
-        end, duration = line.split(' ')
-        elem = [float(end) - float(duration), float(end), float(duration)]
-        silence_list.append(elem)
->>>>>>> 1f9a34461e61918bf335c1152c7583f07b936431
 
     # 更新前の無音発生区間
     x, y = [], []
