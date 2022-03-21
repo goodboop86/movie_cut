@@ -8,7 +8,7 @@ from utils import cmd, silence_plan
 
 def concat():
     c = Config()
-    #cmd.add_fade(conf=c)
+    cmd.add_fade(conf=c)
     cmd.concat(conf=c)
 
 
