@@ -20,6 +20,9 @@ class Config:
         self.outro = r"outro.mp4"
         self.artifact = f"{self.base_dir}/artifact.mp4"
 
+        self.txt = f"{self.base_dir}/concat.txt"
+        self.artifact = f"{self.base_dir}/artifact.mp4"
+
         self.order = [
             [r'{}/{}'.format(self.base_dir, self.intro), r'{}/fade_{}'.format(self.base_dir, self.intro)],
             [r'{}/{}'.format(self.base_dir, self.elem1), r'{}/fade_{}'.format(self.base_dir, self.elem1)],

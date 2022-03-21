@@ -20,8 +20,8 @@ def movie_cut(_title):
 
     # 音声ストリーム作成
     _ = call(cmd.cmd_save_stream(**c.video))
-    _ = call(cmd.cmd_save_stream(**c.audio))
-    _ = call(cmd.cmd_save_stream(**c.voice))
+    _ = call(cmd.cmd_save_audio_stream(**c.audio))
+    _ = call(cmd.cmd_save_audio_stream(**c.voice))
 
     # 無音区間取得
     _ = call(cmd.cmd_silence_detect(**c.silence_detect))
