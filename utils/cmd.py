@@ -40,7 +40,7 @@ def cmd_save_stream(**kwargs) -> str:
 
 @deco
 def cmd_save_audio_stream(**kwargs) -> str:
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -map {} {} -y'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -ar 44100 -map {} {} -y'.format(
         kwargs['in_file'],
         kwargs['fmt'],
         kwargs['out_file']
@@ -91,7 +91,7 @@ def cmd_merge(**kwargs) -> str:
     """
     https://stackoverflow.com/questions/44712868/ffmpeg-set-volume-in-amix
     """
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} {} copy {} aac -map 0:v:0 -map 1:a:0 -c:v h264_videotoolbox -b:v 8000k -c:a aac_at {}'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -i {} {} copy {} aac -map 0:v:0 -map 1:a:0 -c:v h264_videotoolbox -b:v 5000k -c:a aac_at {}'.format(
         kwargs['in_file1'],
         kwargs['in_file2'],
         kwargs['out_file'],
@@ -113,7 +113,7 @@ def cmd_merge_movie(**kwargs) -> str:
 
 @deco
 def cmd_to_playable(**kwargs) -> str:
-    return '/opt/homebrew/bin/ffmpeg -y -i {} -c:v h264_videotoolbox -b:v 8000k -c:a aac_at {}'.format(
+    return '/opt/homebrew/bin/ffmpeg -y -i {} -c:v h264_videotoolbox -b:v 5000k -c:a aac_at {}'.format(
         kwargs['in_file'],
         kwargs['out_file'],
     )
@@ -191,7 +191,7 @@ def add_fade(conf):
     @deco
     def fade(_in_name, _out_name):
         status = subprocess.call(
-            r'/opt/homebrew/bin/ffmpeg -y -i {} -vf scale=1280:720 -vf "fade=t=in:st=0:d=0.5" -c:v h264_videotoolbox -b:v 8000k -c:a aac_at {}'.format(_in_name, _out_name),
+            r'/opt/homebrew/bin/ffmpeg -y -i {} -vf "fade=t=in:st=0:d=0.5" -c:v h264_videotoolbox -b:v 5000k -c:a aac_at {}'.format(_in_name, _out_name),
             shell=True)
         return status
 
@@ -205,7 +205,7 @@ def concat(conf):
         f.writelines([f"file '{out_name}'\n".replace('\\', '') for in_name, out_name in conf.order])
 
     subprocess.call(
-        r'/opt/homebrew/bin/ffmpeg -f concat -safe 0 -i {} -c copy {}'.format(
+        r'/opt/homebrew/bin/ffmpeg -f concat -safe 0 -i {} -c:v copy -c:a copy -map 0:v -map 0:a {}'.format(
             conf.txt, conf.artifact),
         shell=True)
 

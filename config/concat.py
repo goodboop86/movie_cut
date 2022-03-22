@@ -27,7 +27,7 @@ class Config:
             [r'{}/{}'.format(self.base_dir, self.intro), r'{}/fade_{}'.format(self.base_dir, self.intro)],
             [r'{}/{}'.format(self.base_dir, self.elem1), r'{}/fade_{}'.format(self.base_dir, self.elem1)],
             [r'{}/{}'.format(self.base_dir, self.transit), r'{}/fade_{}'.format(self.base_dir, self.transit)],
-            [r'{}/{}'.format(self.base_dir, self.elem1), r'{}/fade_{}'.format(self.base_dir, self.elem1)],
+            [r'{}/{}'.format(self.base_dir, self.elem2), r'{}/fade_{}'.format(self.base_dir, self.elem2)],
             [r'{}/{}'.format(self.base_dir, self.outro), r'{}/fade_{}'.format(self.base_dir, self.outro)]]
 
 
