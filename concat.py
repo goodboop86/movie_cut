@@ -8,7 +8,8 @@ from utils import cmd, silence_plan
 
 def concat():
     c = Config()
-    cmd.movie_concat(conf=c)
+    cmd.add_fade(conf=c)
+    cmd.concat(conf=c)
 
 
 if __name__ == '__main__':
